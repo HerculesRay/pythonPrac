@@ -1,4 +1,5 @@
 class Solution:
+    # Problem link - https://leetcode.com/problems/longest-palindromic-subsequence
     def longestCommonSeq(self, ostr, rstr):
 
         m = len(ostr) + 1
