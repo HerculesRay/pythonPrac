@@ -1,0 +1,55 @@
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import numpy as np
+from scipy.stats import multivariate_normal
+
+img = ... # load the image
+h, w, _ = img.shape
+x, y = np.meshgrid(np.arange(w), np.arange(h))
+pos = np.empty(x.shape + (2,))
+pos[:, :, 0] = x
+pos[:, :, 1] = y
+
+
+mu = [w/2, h/2] # mean
+sigma = [[w/4, 0], [0, h/4]] # covariance matrix
+rv = multivariate_normal(mu, sigma)
+
+z = rv.pdf(pos)
+z /= z.max()
+
+
+app = dash.Dash(__name__)
+app.layout = html.Div([
+    dcc.Graph(
+        figure=dict(
+            layout=dict(
+                xaxis=dict(range=[0, w], showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(range=[h, 0], showgrid=False, zeroline=False, showticklabels=False),
+                width=w,
+                height=h,
+                images=[dict(
+                    source=img,
+                    xref="x",
+                    yref="y",
+                    x=0,
+                    y=h,
+                    sizex=w,
+                    sizey=h,
+                    sizing="stretch",
+                    opacity=1,
+                    layer="below"
+                )]
+            ),
+            data=[dict(
+                type="heatmap",
+                x=x.flatten(),
+                y=y.flatten(),
+                z=z.flatten(),
+                colorscale="Viridis",
+                showscale=False
+            )]
+        )
+    )
+])
