@@ -53,3 +53,40 @@ app.layout = html.Div([
         )
     )
 ])
+
+
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import matplotlib.pyplot as plt
+import numpy as np
+import plotly.tools as tls
+
+# Generate some data
+x = np.linspace(-5, 5, 100)
+y = np.linspace(-5, 5, 100)
+x_mesh, y_mesh = np.meshgrid(x, y)
+z = np.sin(np.sqrt(x_mesh**2 + y_mesh**2))
+
+# Create a matplotlib heatmap
+fig, ax = plt.subplots()
+heatmap = ax.imshow(z, cmap='viridis', extent=[x.min(), x.max(), y.min(), y.max()], origin='lower')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_title('Matplotlib Heatmap')
+
+# Convert the matplotlib figure to a plotly graph object
+graph = tls.mpl_to_plotly(fig)
+
+# Create the Dash app layout
+app = dash.Dash()
+app.layout = html.Div(children=[
+    html.H1(children='Matplotlib Heatmap in Dash'),
+    dcc.Graph(
+        id='heatmap-graph',
+        figure=graph  # Include the converted plotly graph object here
+    )
+])
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
