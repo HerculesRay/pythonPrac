@@ -1,92 +1,25 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
 import numpy as np
-from scipy.stats import multivariate_normal
-
-img = ... # load the image
-h, w, _ = img.shape
-x, y = np.meshgrid(np.arange(w), np.arange(h))
-pos = np.empty(x.shape + (2,))
-pos[:, :, 0] = x
-pos[:, :, 1] = y
-
-
-mu = [w/2, h/2] # mean
-sigma = [[w/4, 0], [0, h/4]] # covariance matrix
-rv = multivariate_normal(mu, sigma)
-
-z = rv.pdf(pos)
-z /= z.max()
-
-
-app = dash.Dash(__name__)
-app.layout = html.Div([
-    dcc.Graph(
-        figure=dict(
-            layout=dict(
-                xaxis=dict(range=[0, w], showgrid=False, zeroline=False, showticklabels=False),
-                yaxis=dict(range=[h, 0], showgrid=False, zeroline=False, showticklabels=False),
-                width=w,
-                height=h,
-                images=[dict(
-                    source=img,
-                    xref="x",
-                    yref="y",
-                    x=0,
-                    y=h,
-                    sizex=w,
-                    sizey=h,
-                    sizing="stretch",
-                    opacity=1,
-                    layer="below"
-                )]
-            ),
-            data=[dict(
-                type="heatmap",
-                x=x.flatten(),
-                y=y.flatten(),
-                z=z.flatten(),
-                colorscale="Viridis",
-                showscale=False
-            )]
-        )
-    )
-])
-
-
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
 import matplotlib.pyplot as plt
-import numpy as np
-import plotly.tools as tls
+from PIL import Image
 
-# Generate some data
-x = np.linspace(-5, 5, 100)
-y = np.linspace(-5, 5, 100)
-x_mesh, y_mesh = np.meshgrid(x, y)
-z = np.sin(np.sqrt(x_mesh**2 + y_mesh**2))
+# Load the image
+image_path = 'path_to_image.jpg'
+image = Image.open(image_path)
 
-# Create a matplotlib heatmap
-fig, ax = plt.subplots()
-heatmap = ax.imshow(z, cmap='viridis', extent=[x.min(), x.max(), y.min(), y.max()], origin='lower')
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_title('Matplotlib Heatmap')
+# Convert the image to a NumPy array
+image_array = np.array(image)
 
-# Convert the matplotlib figure to a plotly graph object
-graph = tls.mpl_to_plotly(fig)
+# Generate sample data for the points
+x = np.random.randint(0, image_array.shape[1], size=100)
+y = np.random.randint(0, image_array.shape[0], size=100)
+intensity = np.random.rand(100) * 255  # Intensity values between 0 and 255
 
-# Create the Dash app layout
-app = dash.Dash()
-app.layout = html.Div(children=[
-    html.H1(children='Matplotlib Heatmap in Dash'),
-    dcc.Graph(
-        id='heatmap-graph',
-        figure=graph  # Include the converted plotly graph object here
-    )
-])
+# Plot the image
+plt.imshow(image_array)
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+# Plot the points with intensity as a heatmap
+plt.scatter(x, y, c=intensity, cmap='hot', alpha=0.5)
+
+plt.colorbar()  # Add colorbar for reference
+
+plt.show()
